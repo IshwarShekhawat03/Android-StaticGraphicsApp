@@ -1,0 +1,122 @@
+package com.example.spinner_app;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.spinner_app.databinding.ActivityMainBinding;
+
+public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        setSupportActionBar(binding.toolbar);
+
+        setupSpinners();
+
+        binding.btnSubmit.setOnClickListener(v -> submitDetails());
+        binding.btnViewHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void setupSpinners() {
+        setupSpinner(binding.spinnerCity, R.array.cities);
+        setupSpinner(binding.spinnerCourse, R.array.courses);
+        setupSpinner(binding.spinnerBranch, R.array.branches);
+        setupSpinner(binding.spinnerYear, R.array.years);
+        setupSpinner(binding.spinnerSemester, R.array.semesters);
+        setupSpinner(binding.spinnerSection, R.array.sections);
+        setupSpinner(binding.spinnerSpecialization, R.array.specializations);
+        setupSpinner(binding.spinnerCollegeType, R.array.college_types);
+        setupSpinner(binding.spinnerStudyMode, R.array.study_modes);
+        setupSpinner(binding.spinnerHostel, R.array.hostel_requirements);
+    }
+
+    private void setupSpinner(Spinner spinner, int arrayResId) {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                arrayResId, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
+
+    private void submitDetails() {
+        String name = binding.etName.getText().toString().trim();
+        
+        if (name.isEmpty()) {
+            binding.tilName.setError("Name is required");
+            return;
+        } else {
+            binding.tilName.setError(null);
+        }
+
+        if (!validateSelections()) {
+            Toast.makeText(this, "Please select all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StudentEntry entry = new StudentEntry(
+                name,
+                binding.spinnerCity.getSelectedItem().toString(),
+                binding.spinnerCourse.getSelectedItem().toString(),
+                binding.spinnerBranch.getSelectedItem().toString(),
+                binding.spinnerYear.getSelectedItem().toString(),
+                binding.spinnerSemester.getSelectedItem().toString(),
+                binding.spinnerSection.getSelectedItem().toString(),
+                binding.spinnerSpecialization.getSelectedItem().toString(),
+                binding.spinnerCollegeType.getSelectedItem().toString(),
+                binding.spinnerStudyMode.getSelectedItem().toString(),
+                binding.spinnerHostel.getSelectedItem().toString()
+        );
+
+        // Add to history
+        HistoryActivity.historyList.add(entry);
+
+        binding.tvSummary.setText(entry.getSummary());
+        binding.cardSummary.setVisibility(View.VISIBLE);
+
+        Toast.makeText(this, "Details Submitted Successfully", Toast.LENGTH_SHORT).show();
+        
+        // Clear fields for next entry
+        clearFields();
+    }
+
+    private void clearFields() {
+        binding.etName.setText("");
+        binding.spinnerCity.setSelection(0);
+        binding.spinnerCourse.setSelection(0);
+        binding.spinnerBranch.setSelection(0);
+        binding.spinnerYear.setSelection(0);
+        binding.spinnerSemester.setSelection(0);
+        binding.spinnerSection.setSelection(0);
+        binding.spinnerSpecialization.setSelection(0);
+        binding.spinnerCollegeType.setSelection(0);
+        binding.spinnerStudyMode.setSelection(0);
+        binding.spinnerHostel.setSelection(0);
+    }
+
+    private boolean validateSelections() {
+        return binding.spinnerCity.getSelectedItemPosition() > 0 &&
+                binding.spinnerCourse.getSelectedItemPosition() > 0 &&
+                binding.spinnerBranch.getSelectedItemPosition() > 0 &&
+                binding.spinnerYear.getSelectedItemPosition() > 0 &&
+                binding.spinnerSemester.getSelectedItemPosition() > 0 &&
+                binding.spinnerSection.getSelectedItemPosition() > 0 &&
+                binding.spinnerSpecialization.getSelectedItemPosition() > 0 &&
+                binding.spinnerCollegeType.getSelectedItemPosition() > 0 &&
+                binding.spinnerStudyMode.getSelectedItemPosition() > 0 &&
+                binding.spinnerHostel.getSelectedItemPosition() > 0;
+    }
+}
